@@ -28,7 +28,7 @@ function classify(raw: unknown): { kind: ErrorKind; code: string } {
   const code = String(e.code ?? '');
   const msg = String(e.message ?? '').toLowerCase();
   if (raw instanceof TypeError || msg.includes('failed to fetch') || msg.includes('networkerror') || !navigator.onLine) return { kind: 'network', code: 'network' };
-  if (status === 429 || code.includes('rate_limit') || msg.includes('rate_limit')) return { kind: 'rate-limited', code: 'rate_limited' };
+  if (status === 429 || /rate[\s_-]*limit|too many (requests|emails)/.test(msg) || /rate[\s_-]*limit/.test(code.toLowerCase())) return { kind: 'rate-limited', code: 'rate_limited' };
   if (status === 401 || code === 'PGRST301' || code === 'PGRST303' || msg.includes('jwt')) return { kind: 'unauthorized', code: 'unauthorized' };
   if (status === 403 || code === '42501' || msg.includes('row-level security') || msg.includes('permission denied')) return { kind: 'forbidden', code: 'forbidden' };
   if (code === 'PGRST116' || status === 404) return { kind: 'not-found', code: 'not_found' };
@@ -51,6 +51,7 @@ export function authErrorMessage(raw: unknown, mode: 'signin' | 'signup' | 'reco
   const error = (raw ?? {}) as RawError;
   const code = String(error.code ?? '');
   const message = String(error.message ?? '').toLowerCase();
+  const safeCode = /^[a-z0-9_-]{1,40}$/i.test(code) ? ` (code: ${code})` : '';
   logEvent({ level: 'security', code: `auth_${mode}_${code || kind}`.slice(0, 40), area: 'auth' });
   if (kind === 'rate-limited') return MESSAGES['rate-limited'];
   if (kind === 'network') return MESSAGES.network;
@@ -58,10 +59,10 @@ export function authErrorMessage(raw: unknown, mode: 'signin' | 'signup' | 'reco
     if (code.includes('redirect') || message.includes('redirect') || message.includes('allow list')) {
       return 'The recovery redirect is not allowed. Check Supabase Authentication URL Configuration.';
     }
-    if (message.includes('email') || message.includes('smtp') || kind === 'server') {
-      return 'Supabase could not deliver the reset email. Check Authentication SMTP settings and email rate limits.';
+    if (/sender|smtp|email/.test(code.toLowerCase()) || /sender|smtp|email/.test(message) || kind === 'server') {
+      return `Supabase could not deliver the reset email. Verify the SMTP key and an approved sender address with your provider, then check its delivery logs${safeCode}.`;
     }
-    return 'We could not request a reset email. Check the Supabase Auth settings and try again later.';
+    return `We could not request a reset email. Check Supabase Auth settings${safeCode}.`;
   }
   if (code === 'invalid_credentials') return 'Incorrect email or password.';
   if (code === 'email_not_confirmed') return 'Please confirm your email address, then sign in.';
