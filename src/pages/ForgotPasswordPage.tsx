@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { FormField } from '../components/ui/FormField';
+import { authErrorMessage } from '../lib/errors';
 import { supabase } from '../lib/supabase';
 import { emailSchema } from '../lib/validation';
 
@@ -25,10 +26,10 @@ export default function ForgotPasswordPage() {
     try {
       const { error: requestError } = await supabase!.auth.resetPasswordForEmail(parsed.data, { redirectTo });
       setMessage(requestError
-        ? 'We could not send the reset email. Please try again.'
+        ? authErrorMessage(requestError, 'recovery')
         : 'If an account exists for that email, a password reset link is on its way.');
     } catch {
-      setMessage('We could not send the reset email. Please try again.');
+      setMessage('We could not reach Supabase. Check your internet connection and try again.');
     } finally {
       setBusy(false);
     }

@@ -46,12 +46,23 @@ export function toAppError(raw: unknown, area = 'api'): AppError {
 }
 
 /** Auth failures: deliberately vague so the form cannot be used to discover which emails have accounts. */
-export function authErrorMessage(raw: unknown, mode: 'signin' | 'signup'): string {
+export function authErrorMessage(raw: unknown, mode: 'signin' | 'signup' | 'recovery'): string {
   const { kind } = classify(raw);
-  const code = String((raw as RawError | null)?.code ?? '');
+  const error = (raw ?? {}) as RawError;
+  const code = String(error.code ?? '');
+  const message = String(error.message ?? '').toLowerCase();
   logEvent({ level: 'security', code: `auth_${mode}_${code || kind}`.slice(0, 40), area: 'auth' });
   if (kind === 'rate-limited') return MESSAGES['rate-limited'];
   if (kind === 'network') return MESSAGES.network;
+  if (mode === 'recovery') {
+    if (code.includes('redirect') || message.includes('redirect') || message.includes('allow list')) {
+      return 'The recovery redirect is not allowed. Check Supabase Authentication URL Configuration.';
+    }
+    if (message.includes('email') || message.includes('smtp') || kind === 'server') {
+      return 'Supabase could not deliver the reset email. Check Authentication SMTP settings and email rate limits.';
+    }
+    return 'We could not request a reset email. Check the Supabase Auth settings and try again later.';
+  }
   if (code === 'invalid_credentials') return 'Incorrect email or password.';
   if (code === 'email_not_confirmed') return 'Please confirm your email address, then sign in.';
   if (code === 'weak_password') return 'Please choose a stronger password.';

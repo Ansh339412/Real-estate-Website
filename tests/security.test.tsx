@@ -35,6 +35,12 @@ describe('logging and errors never leak', () => {
     expect(authErrorMessage({ code: 'invalid_credentials', message: 'Invalid login credentials' }, 'signin')).toBe('Incorrect email or password.');
     expect(authErrorMessage({ code: 'user_not_found', message: 'No user a@b.com' }, 'signin')).not.toMatch(/a@b\.com|not found/i);
   });
+  it('gives actionable but safe password recovery errors', () => {
+    expect(authErrorMessage({ status: 429, code: 'over_email_send_rate_limit' }, 'recovery')).toMatch(/wait/i);
+    expect(authErrorMessage({ code: 'validation_failed', message: 'redirect URL not allowed' }, 'recovery')).toMatch(/URL Configuration/i);
+    expect(authErrorMessage({ status: 500, message: 'Error sending recovery email via SMTP' }, 'recovery')).toMatch(/SMTP settings/i);
+    expect(authErrorMessage({ status: 500, message: 'Error sending to private@email.com' }, 'recovery')).not.toMatch(/private@email\.com/i);
+  });
   it('rate limiter blocks after repeated failures', () => {
     const l = createLimiter('t', 3, 60000, 30000);
     l.record(); l.record(); expect(l.retryAfterSeconds()).toBe(0);
