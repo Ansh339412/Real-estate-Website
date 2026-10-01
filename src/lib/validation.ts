@@ -30,9 +30,12 @@ export const listingSchema = z.object({
 });
 export type ListingInput = z.infer<typeof listingSchema>;
 
+export const emailSchema = z.string().trim().email('Enter a valid email address').max(254);
+export const passwordSchema = z.string().min(8, 'Password needs at least 8 characters').max(72);
+
 export const credentialsSchema = z.object({
-  email: z.string().trim().email('Enter a valid email address').max(254),
-  password: z.string().min(8, 'Password needs at least 8 characters').max(72),
+  email: emailSchema,
+  password: passwordSchema,
 });
 
 /** Turns zod issues into { fieldName: message } for inline form errors. */

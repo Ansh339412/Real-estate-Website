@@ -37,6 +37,9 @@ export default function LoginPage() {
             className="w-full rounded-md border border-ink/20 bg-white px-3 py-2.5" />
         </FormField>
         <PasswordField id="password" label="Password" value={password} onChange={setPassword} autoComplete="current-password" error={errors.password} />
+        <p className="-mt-2 text-right text-sm">
+          <Link to="/forgot-password" className="font-semibold text-brand underline">Forgot password?</Link>
+        </p>
         {message && <p role="alert" className="text-sm text-red-700">{message}</p>}
         <button type="submit" disabled={busy} className="w-full rounded-md btn-primary px-5 py-3 font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60">
           {busy ? 'Signing in…' : 'Sign in'}

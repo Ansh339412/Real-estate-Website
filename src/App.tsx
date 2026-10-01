@@ -19,6 +19,8 @@ const SavedPage = lazy(() => import('./pages/SavedPage'));
 const PropertyDetailPage = lazy(() => import('./pages/PropertyDetailPage'));
 const SignUpPage = lazy(() => import('./pages/SignUpPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const NewListingPage = lazy(() => import('./pages/NewListingPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
@@ -50,6 +52,8 @@ export default function App() {
                 <Route path="/saved" element={page(<SavedPage />)} />
                 <Route path="/properties/:id" element={page(<PropertyDetailPage />)} />
                 <Route path="/login" element={page(<LoginPage />)} />
+                <Route path="/forgot-password" element={page(<ForgotPasswordPage />)} />
+                <Route path="/reset-password" element={page(<ResetPasswordPage />)} />
                 <Route path="/signup" element={page(<SignUpPage />)} />
                 <Route path="/401" element={page(<UnauthorizedPage />)} />
                 <Route path="/403" element={page(<ForbiddenPage />)} />
