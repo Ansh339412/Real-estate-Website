@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { PasswordField } from '../components/ui/PasswordField';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -7,10 +7,49 @@ import { passwordSchema } from '../lib/validation';
 
 export default function ResetPasswordPage() {
   const { user, loading } = useAuth();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const tokenHash = searchParams.get('token_hash');
+  const callbackType = searchParams.get('type');
+  const alreadyVerified = Boolean((location.state as { recoveryVerified?: boolean } | null)?.recoveryVerified);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [updated, setUpdated] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [recoveryState, setRecoveryState] = useState<'checking' | 'ready' | 'verified' | 'invalid'>(
+    alreadyVerified ? 'verified' : 'checking',
+  );
+  const verificationStarted = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!tokenHash) {
+      setRecoveryState(alreadyVerified ? 'verified' : 'ready');
+      return;
+    }
+    if (callbackType !== 'recovery' || !supabase) {
+      setRecoveryState('invalid');
+      return;
+    }
+    if (verificationStarted.current === tokenHash) return;
+
+    verificationStarted.current = tokenHash;
+    let active = true;
+    setRecoveryState('checking');
+    supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'recovery' }).then(({ data, error: verifyError }) => {
+      if (!active) return;
+      if (verifyError || !data.session) {
+        setRecoveryState('invalid');
+        return;
+      }
+      setRecoveryState('verified');
+      navigate('/reset-password', { replace: true, state: { recoveryVerified: true } });
+    }).catch(() => active && setRecoveryState('invalid'));
+
+    return () => {
+      active = false;
+    };
+  }, [alreadyVerified, callbackType, navigate, tokenHash]);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -36,14 +75,14 @@ export default function ResetPasswordPage() {
   return (
     <div className="mx-auto max-w-md px-4 py-12">
       <h1 className="text-3xl font-bold">Choose a new password</h1>
-      {loading ? (
+      {recoveryState === 'checking' || (loading && recoveryState !== 'verified') ? (
         <p className="mt-4" role="status">Checking your reset link…</p>
       ) : updated ? (
         <div className="mt-4 space-y-4">
           <p role="status">Your password has been updated.</p>
           <Link to="/" className="inline-block rounded-md btn-primary px-5 py-3 font-semibold text-white">Continue</Link>
         </div>
-      ) : !user ? (
+      ) : recoveryState === 'invalid' || (recoveryState !== 'verified' && !user) ? (
         <div className="mt-4 space-y-4">
           <p role="alert">This reset link is invalid or has expired.</p>
           <Link to="/forgot-password" className="font-semibold text-brand underline">Request another reset link</Link>
