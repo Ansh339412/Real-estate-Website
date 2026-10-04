@@ -75,7 +75,7 @@ export function ListingForm({ onSubmit }: Props) {
       </Field>
       <Field id="type" error={errors.type} label="Property type">
         <select id="type" className={input} value={form.type} onChange={set('type')}>
-          {['house', 'apartment', 'condo', 'villa', 'land'].map((t) => <option key={t} value={t} className="capitalize">{t}</option>)}
+          {['house', 'apartment', 'condo', 'villa', 'land', 'commercial'].map((t) => <option key={t} value={t} className="capitalize">{t}</option>)}
         </select>
       </Field>
       <Field id="price" error={errors.price} label="Price (₹)"><input id="price" type="number" min={0} className={input} value={form.price} onChange={set('price')} {...a11y('price')} /></Field>

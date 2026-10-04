@@ -14,7 +14,7 @@ export interface FilterSidebarProps {
 
 const TYPES: { value: PropertyType; label: string }[] = [
   { value: 'house', label: 'House / Villa' }, { value: 'apartment', label: 'Apartment / Flat' }, { value: 'condo', label: 'Condo' },
-  { value: 'villa', label: 'Villa' }, { value: 'land', label: 'Plot / Land' },
+  { value: 'villa', label: 'Villa' }, { value: 'land', label: 'Plot / Land' }, { value: 'commercial', label: 'Commercial' },
 ];
 const MODES: { value: ListingStatus | 'all'; label: string }[] = [{ value: 'all', label: 'All' }, { value: 'for-sale', label: 'Buy' }, { value: 'for-rent', label: 'Rent' }];
 const toNum = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>): number | null => (e.target.value === '' ? null : Number(e.target.value));

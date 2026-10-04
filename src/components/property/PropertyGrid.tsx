@@ -7,7 +7,7 @@ import { PropertyCard } from './PropertyCard';
 import { ease } from '../ui/motion';
 
 /** Animated grid: cards glide to new positions when filters change, and fade in/out as they match. */
-export function PropertyGrid({ properties, layout = 'grid' }: { properties: Property[]; layout?: 'grid' | 'list' }) {
+export function PropertyGrid({ properties, layout = 'grid', priorityCount = 0 }: { properties: Property[]; layout?: 'grid' | 'list'; priorityCount?: number }) {
   const { isFavorite, toggle } = useFavorites();
   const navigate = useNavigate();
   const onToggle = async (id: string) => {
@@ -17,14 +17,14 @@ export function PropertyGrid({ properties, layout = 'grid' }: { properties: Prop
   return (
     <motion.ul layout className={layout === 'list' ? 'flex flex-col gap-5' : 'grid gap-6 sm:grid-cols-2 xl:grid-cols-3'}>
       <AnimatePresence mode="popLayout" initial={false}>
-        {properties.map((p) => (
+        {properties.map((p, i) => (
           <motion.li key={p.id} layout
             initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.94 }}
             transition={{ duration: 0.4, ease }}>
             {layout === 'list' ? (
               <ListingCard property={p} isFavorite={isFavorite(p.id)} onToggleFavorite={onToggle} />
             ) : (
-              <PropertyCard property={p} isFavorite={isFavorite(p.id)} onToggleFavorite={onToggle} />
+              <PropertyCard priority={i < priorityCount} property={p} isFavorite={isFavorite(p.id)} onToggleFavorite={onToggle} />
             )}
           </motion.li>
         ))}

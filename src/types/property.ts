@@ -1,4 +1,4 @@
-export type PropertyType = 'house' | 'apartment' | 'condo' | 'villa' | 'land';
+export type PropertyType = 'house' | 'apartment' | 'condo' | 'villa' | 'land' | 'commercial';
 export type ListingStatus = 'for-sale' | 'for-rent';
 export type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'area-desc';
 
@@ -23,6 +23,8 @@ export interface Property {
   listedAt: string;
   featured?: boolean;
   ownerId?: string | null;
+  /** True for built-in demonstration listings (never stored in the database). */
+  sample?: boolean;
 }
 
 export interface PropertyFilters {

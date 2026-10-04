@@ -34,7 +34,7 @@ const AuthContext = createContext<AuthValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(Boolean(supabase));
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
   const userId = user?.id;
@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [userId]);
 
   const signIn = useCallback(async (email: string, password: string) => {
-    if (!supabase) return 'This service is temporarily unavailable.';
+    if (!supabase) return 'Accounts are not available right now.';
     const wait = signInLimiter.retryAfterSeconds();
     if (wait > 0) return `Too many attempts. Please wait ${wait} seconds and try again.`;
     const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -88,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = useCallback(async (d: SignUpDetails) => {
-    if (!supabase) return { error: 'This service is temporarily unavailable.', needsConfirmation: false };
+    if (!supabase) return { error: 'Accounts are not available right now.', needsConfirmation: false };
     const wait = signUpLimiter.retryAfterSeconds();
     if (wait > 0) return { error: `Too many attempts. Please wait ${wait} seconds and try again.`, needsConfirmation: false };
     signUpLimiter.record();

@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { profiles } from '../../repositories';
 import type { ListingContact } from '../../types/profile';
 
-interface Props { propertyId: string; ownerId?: string | null; title: string }
+interface Props { propertyId: string; ownerId?: string | null; title: string; sample?: boolean }
 type State = { status: 'idle' | 'loading' | 'ready' | 'error'; contact: ListingContact | null; message: string };
 
 const phoneDigits = (p: string) => p.replace(/[^\d+]/g, '');
@@ -15,7 +15,7 @@ const whatsappNumber = (p: string) => {
 const btn = 'flex flex-1 items-center justify-center rounded-full px-4 py-2.5 text-sm font-semibold';
 
 /** Owner contact card. Phone and email are fetched ONLY for signed-in visitors, one listing at a time. */
-export function OwnerContact({ propertyId, ownerId, title }: Props) {
+export function OwnerContact({ propertyId, ownerId, title, sample = false }: Props) {
   const { user } = useAuth();
   const location = useLocation();
   const userId = user?.id;
@@ -37,7 +37,13 @@ export function OwnerContact({ propertyId, ownerId, title }: Props) {
 
   const c = state.contact;
   let body;
-  if (!ownerId) body = <p className="text-sm text-ink/70">Contact details are not available for this listing.</p>;
+  if (sample) body = (
+    <>
+      <p className="text-sm text-ink/70">This is a sample listing, so there is no owner to contact. Real listings show the owner's phone and email to signed-in visitors.</p>
+      <Link to="/contact" className={`${btn} btn-primary mt-4`}>Talk to an advisor</Link>
+    </>
+  );
+  else if (!ownerId) body = <p className="text-sm text-ink/70">Contact details are not available for this listing.</p>;
   else if (!userId)
     body = (
       <>

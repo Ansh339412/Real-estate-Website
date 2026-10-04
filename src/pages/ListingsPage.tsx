@@ -6,13 +6,15 @@ import { PropertyGrid } from '../components/property/PropertyGrid';
 import { ease } from '../components/ui/motion';
 import { useFilters } from '../context/FilterContext';
 import { useProperties } from '../context/PropertiesContext';
+import { useDocumentMeta } from '../lib/seo';
 import type { SortOption } from '../types/property';
 import { filterProperties } from '../utils/filterProperties';
 
 const PAGE = 10;
 
 export default function ListingsPage() {
-  const { properties, loading, error } = useProperties();
+  const { properties, loading, error, usingSamples } = useProperties();
+  useDocumentMeta('Properties for sale and rent in India | Hearth & Key', 'Browse apartments, villas, plots and commercial spaces for sale and rent. Filter by budget in Lac and Crore, BHK, area and city.');
   const { filters, updateFilters, resetFilters } = useFilters();
   const [drawer, setDrawer] = useState(false);
   const [layout, setLayout] = useState<'list' | 'grid'>('list');
@@ -32,7 +34,7 @@ export default function ListingsPage() {
 
   return (
     <div>
-      <div className="sticky top-[57px] z-30 border-b border-white/60 bg-white/80 backdrop-blur-xl">
+      <div className="sticky top-16 z-30 border-b border-white/60 bg-white/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3">
           <label htmlFor="lp-q" className="sr-only">Search by city, locality or PIN code</label>
           <input id="lp-q" type="search" maxLength={100} value={filters.query} onChange={(e) => updateFilters({ query: e.target.value })} placeholder="City, locality or PIN code"
@@ -49,11 +51,12 @@ export default function ListingsPage() {
       </div>
 
       <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 lg:grid-cols-[290px_1fr]">
-        <FilterSidebar {...side} className="sticky top-32 hidden max-h-[calc(100vh-9rem)] overflow-y-auto lg:block" />
+        <FilterSidebar {...side} className="sticky top-36 hidden max-h-[calc(100vh-10rem)] overflow-y-auto lg:block" />
 
         <section aria-labelledby="results-title">
           <h1 id="results-title" className="text-2xl font-bold sm:text-3xl">Properties {mode} in {where}</h1>
           <p aria-live="polite" className="mb-4 mt-1 text-sm text-ink/70">{loading ? 'Loading…' : `${results.length} ${results.length === 1 ? 'result' : 'results'}`}</p>
+          {usingSamples && <p className="mb-4 rounded-2xl border border-gold/40 bg-gold/10 px-4 py-3 text-sm text-ink/80"><strong>Sample listings.</strong> These are demonstration properties with illustrated photos. Real listings replace them once owners post.</p>}
           <ActiveFilters filters={filters} onChange={updateFilters} onReset={resetFilters} />
           {error && <p role="alert" className="text-red-700">{error}</p>}
           {!loading && !error && results.length === 0 && (

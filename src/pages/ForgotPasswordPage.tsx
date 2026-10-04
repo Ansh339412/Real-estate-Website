@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { FormField } from '../components/ui/FormField';
 import { authErrorMessage } from '../lib/errors';
+import { recoveryLimiter } from '../lib/rateLimit';
 import { supabase } from '../lib/supabase';
 import { emailSchema } from '../lib/validation';
 
@@ -19,12 +20,22 @@ export default function ForgotPasswordPage() {
       return;
     }
 
+    if (!supabase) {
+      setMessage('Password reset is not available right now.');
+      return;
+    }
+    const wait = recoveryLimiter.retryAfterSeconds();
+    if (wait > 0) {
+      setMessage(`Too many requests. Please wait ${wait} seconds and try again.`);
+      return;
+    }
+    recoveryLimiter.record();
     setError('');
     setMessage('');
     setBusy(true);
     const redirectTo = `${window.location.origin}${window.location.pathname}#/reset-password`;
     try {
-      const { error: requestError } = await supabase!.auth.resetPasswordForEmail(parsed.data, { redirectTo });
+      const { error: requestError } = await supabase.auth.resetPasswordForEmail(parsed.data, { redirectTo });
       setMessage(requestError
         ? authErrorMessage(requestError, 'recovery')
         : 'If an account exists for that email, a password reset link is on its way.');

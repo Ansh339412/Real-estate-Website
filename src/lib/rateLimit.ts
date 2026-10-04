@@ -39,4 +39,5 @@ export function createLimiter(name: string, max: number, windowMs: number, block
 }
 
 export const signInLimiter = createLimiter('signin', 5, 10 * 60_000, 60_000);
+export const recoveryLimiter = createLimiter('recovery', 5, 10 * 60_000, 5 * 60_000);
 export const signUpLimiter = createLimiter('signup', 5, 60 * 60_000, 5 * 60_000);

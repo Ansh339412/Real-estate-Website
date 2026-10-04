@@ -13,9 +13,8 @@ export default function SavedPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
       <h1 className="text-3xl font-bold">Saved homes</h1>
-      {!user ? (
-        <p className="mt-4"><Link to="/login" className="text-brand underline">Sign in</Link> to save homes and find them here later.</p>
-      ) : saved.length === 0 ? (
+      {!user && <p className="mt-2 text-sm text-ink/70">These are saved for this visit only. <Link to="/login" className="font-semibold text-brand underline">Sign in</Link> to keep them for next time.</p>}
+      {saved.length === 0 ? (
         <p className="mt-4">Nothing saved yet. Tap the heart on any listing to keep it here. <Link to="/listings" className="text-brand underline">Browse listings</Link></p>
       ) : (
         <div className="mt-6"><PropertyGrid properties={saved} /></div>

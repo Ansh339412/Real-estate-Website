@@ -17,7 +17,7 @@ export const listingSchema = z.object({
   description: plain(z.string().trim().min(20, 'Describe the property in at least 20 characters').max(2000)),
   price: z.coerce.number().positive('Price must be above 0').max(5_000_000_000),
   status: z.enum(['for-sale', 'for-rent']),
-  type: z.enum(['house', 'apartment', 'condo', 'villa', 'land']),
+  type: z.enum(['house', 'apartment', 'condo', 'villa', 'land', 'commercial']),
   bedrooms: z.coerce.number().int('Whole number').min(0).max(20),
   bathrooms: z.coerce.number().min(0).max(20),
   areaSqFt: z.coerce.number().int('Whole number').positive('Area must be above 0').max(1_000_000),
@@ -64,3 +64,10 @@ export const signUpSchema = credentialsSchema
     confirmPassword: z.string().min(1, 'Type your password again'),
   })
   .refine((d) => d.password === d.confirmPassword, { path: ['confirmPassword'], message: 'Passwords do not match' });
+
+export const contactSchema = z.object({
+  name: z.string().trim().min(2, 'Enter your name').max(80).refine((v) => !/[<>]/.test(v), 'Please remove the < and > characters'),
+  phone: z.string().trim().regex(/^[+\d][\d\s-]{6,18}$/, 'Enter a valid phone number'),
+  interest: z.enum(['buy', 'rent', 'sell', 'other']),
+  message: z.string().trim().max(500, 'Keep this under 500 characters').refine((v) => !/[<>]/.test(v), 'Please remove the < and > characters'),
+});

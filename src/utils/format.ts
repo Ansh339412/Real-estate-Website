@@ -24,3 +24,9 @@ export function timeAgo(iso: string): string {
   const m = Math.floor(d / 30);
   return m === 1 ? '1 month ago' : `${m} months ago`;
 }
+
+const TYPE_LABELS: Record<string, string> = { house: 'House', apartment: 'Apartment', condo: 'Condo', villa: 'Villa', land: 'Plot / Land', commercial: 'Commercial' };
+export const typeLabel = (t: string): string => TYPE_LABELS[t] ?? t;
+/** "3 BHK" for homes; plots and commercial spaces have no bedrooms, so nothing is shown. */
+export const bedLabel = (beds: number): string | null => (beds > 0 ? `${beds} BHK` : null);
+export const isNewListing = (iso: string): boolean => Date.now() - new Date(iso).getTime() <= 3 * 86_400_000;

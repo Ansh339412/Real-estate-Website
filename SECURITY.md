@@ -38,5 +38,6 @@ Nothing here makes a website "100% secure"; this lists what was done and what yo
 - Browser-side throttling can be bypassed; the real protection is Supabase rate limits plus the database triggers.
 - Photos are in a **public** bucket (listing photos and avatars are public content). Do not store private documents there.
 - CORS and API-level rate limiting for Supabase's own endpoints are managed by Supabase, not by this project.
-- There is no password-reset screen yet; if you add one, rate-limit it and keep the response identical for known and unknown emails.
+- Password reset uses Supabase Auth with your own SMTP (Brevo). The forgot-password form also has a browser-side throttle; the real limit is the one in Supabase and Brevo. Keep the response identical for known and unknown emails.
+- Sample listings and illustrated photos are generated in the browser and never stored. Hide them with `VITE_SAMPLE_DATA=off`.
 - The CSP meta tag cannot express `frame-ancestors`; the `_headers` file does, on hosts that support it.

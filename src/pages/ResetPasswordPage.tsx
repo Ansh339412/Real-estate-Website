@@ -62,7 +62,8 @@ export default function ResetPasswordPage() {
     setError('');
     setBusy(true);
     try {
-      const { error: updateError } = await supabase!.auth.updateUser({ password: parsed.data });
+      if (!supabase) throw new Error('unavailable');
+      const { error: updateError } = await supabase.auth.updateUser({ password: parsed.data });
       if (updateError) setError('This reset link may have expired. Request a new one and try again.');
       else setUpdated(true);
     } catch {

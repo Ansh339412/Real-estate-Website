@@ -5,7 +5,7 @@ export function filterProperties(properties: Property[], f: PropertyFilters): Pr
 
   const matches = properties.filter((p) => {
     if (q) {
-      const haystack = `${p.title} ${p.address.city} ${p.address.state} ${p.address.zip}`.toLowerCase();
+      const haystack = `${p.title} ${p.address.street} ${p.address.city} ${p.address.state} ${p.address.zip}`.toLowerCase();
       if (!haystack.includes(q)) return false;
     }
     if (f.status !== 'all' && p.status !== f.status) return false;

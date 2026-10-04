@@ -9,11 +9,11 @@ import { ErrorView, kindToCode } from './components/errors/ErrorView';
 import { OfflineBanner } from './components/errors/OfflineBanner';
 import { useProperties } from './context/PropertiesContext';
 import { ForbiddenPage, ServerErrorPage, TooManyRequestsPage, UnauthorizedPage } from './pages/ErrorPages';
+import HomePage from './pages/HomePage';
 import { ProtectedRoute } from './components/routing/ProtectedRoute';
 import { AdminRoute } from './components/routing/AdminRoute';
 
 // Route-level code splitting: each page downloads only when visited.
-const HomePage = lazy(() => import('./pages/HomePage'));
 const ListingsPage = lazy(() => import('./pages/ListingsPage'));
 const SavedPage = lazy(() => import('./pages/SavedPage'));
 const PropertyDetailPage = lazy(() => import('./pages/PropertyDetailPage'));
@@ -25,6 +25,8 @@ const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const NewListingPage = lazy(() => import('./pages/NewListingPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const AdminPage = lazy(() => import('./pages/AdminPage'));
+const ContactPage = lazy(() => import('./pages/ContactPage'));
+const LegalPage = lazy(() => import('./pages/LegalPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 const page = (el: React.ReactNode) => <PageTransition>{el}</PageTransition>;
@@ -41,7 +43,7 @@ export default function App() {
         <OfflineBanner />
         <Header />
         <main id="main" className="flex-1">
-          <Suspense fallback={<p className="p-10 text-center" role="status">Loading…</p>}>
+          <Suspense fallback={<div className="min-h-[85vh] p-10 text-center" role="status">Loading…</div>}>
             {fatal ? (
               <ErrorView code={kindToCode(fatal.kind)} reference={fatal.reference} onRetry={() => void refresh()} />
             ) : (
@@ -55,6 +57,8 @@ export default function App() {
                 <Route path="/forgot-password" element={page(<ForgotPasswordPage />)} />
                 <Route path="/reset-password" element={page(<ResetPasswordPage />)} />
                 <Route path="/signup" element={page(<SignUpPage />)} />
+                <Route path="/contact" element={page(<ContactPage />)} />
+                <Route path="/legal/:slug" element={page(<LegalPage />)} />
                 <Route path="/401" element={page(<UnauthorizedPage />)} />
                 <Route path="/403" element={page(<ForbiddenPage />)} />
                 <Route path="/429" element={page(<TooManyRequestsPage />)} />
